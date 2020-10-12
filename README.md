@@ -47,7 +47,7 @@ or the current price in cents:
 
 ```julia
 current_price = Flick.get_current_price(auth_token)
-println("Current freestyle price in cents: ", current_price)
+println("Current freestyle price in cents: ", current_price.value)
 
 price_detail = get_price_detail(auth_token)
 ```
