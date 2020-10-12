@@ -1,9 +1,10 @@
-Flick.jl
+# Flick.jl
 
-A very basic Julia client for the Flick Electric API.
+A very basic Julia client for retrieving power prices from [Flick Electric](https://www.flickelectric.co.nz/).
 
 As flick doesn't (yet) allow developers to register applications you have to use
-the app tokens embedded in their client app.
+the app tokens embedded in their mobile client app. Internally this package just calls the same
+endpoints as the mobile app.
 
 
 ## Credentials

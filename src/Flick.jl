@@ -8,7 +8,7 @@ module Flick
 
 using HTTP
 using JSON
-using Dates: Day, Minute, Second
+using Dates: Day, Minute, Second, DateTime
 using ExpiringCaches
 
 const SERVER = "https://api.flick.energy"
@@ -18,6 +18,14 @@ const AUTH_URL = SERVER * "/identity/oauth/token"
 
 const DEFAULT_CLIENT_ID = "le37iwi3qctbduh39fvnpevt1m2uuvz"
 const DEFAULT_CLIENT_SECRET = "ignwy9ztnst3azswww66y9vd9zt6qnt"
+
+struct Price
+    value::Float64
+    unit::String
+    issued_at::DateTime
+    expires_at::DateTime
+end
+
 
 function get_config(filename)
     JSON.parse(open(filename))
@@ -97,10 +105,15 @@ end
 Calls are cached in memory for a couple of minutes to avoid hitting the flick api too often.
 """
 
-ExpiringCaches.@cacheable Minute(2) function get_current_price(auth_token::String)::Float64
+ExpiringCaches.@cacheable Minute(2) function get_current_price(auth_token::String)::Price
     flick_price_detail = get_price_detail(auth_token)
-    @info "Price detail:\n$(flick_price_detail)"
-    parse(Float64, flick_price_detail["needle"]["price"])
+    @debug "Price detail:\n$(flick_price_detail)"
+    @show flick_price_detail["needle"]
+    price_value = parse(Float64, flick_price_detail["needle"]["price"])
+    valid_from = DateTime(flick_price_detail["needle"]["start_at"], "y-m-dTHH:MM:SS.sZ")
+    valid_until = DateTime(flick_price_detail["needle"]["end_at"], "y-m-dTHH:MM:SS.sZ")
+
+    Price(price_value, flick_price_detail["needle"]["unit_code"], valid_from, valid_to)
 end
 
 end # module
